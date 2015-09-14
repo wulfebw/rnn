@@ -42,8 +42,7 @@ class MLP(object):
 		else:
 			return outputs
 
-	def get_cost_updates(self, data, mask, learning_rate=0.01):
-		input, targets = data
+	def get_cost_updates(self, input, targets, mask, learning_rate=0.01):
 		predictions = self.fprop(input, mask)
 
 		if self.cost is not None:
@@ -220,7 +219,7 @@ class Softmax(object):
 		self.params = [self.W, self.b]
 
 	def fprop(self, state_below, mask=None):
-		# prob_y_given_x is a 2d array with only one element e.g., [[1,2,3]], so take only the first ele
+
 		prob_y_given_x = T.nnet.softmax(T.dot(state_below, self.W) + self.b)
 		print_prob_y_given_x = theano.printing.Print('prob_y_given_x')(prob_y_given_x)
 		# T.argmax returns the index of the greatest element in the vector prob_y_given_x 
@@ -251,7 +250,7 @@ class Softmax(object):
 		:type target: int
 		:param target: the correct label for this example
 		"""
-		return -T.mean(T.log(self.prob_y_given_x)[T.arange(target.shape[0]), target])
+		return -T.mean(T.log(prob_y_given_x)[T.arange(target.shape[0]), target])
 		#return -T.log(prob_y_given_x[target])
 
 

@@ -82,6 +82,8 @@
 """
 
 import sys
+sys.path.insert(1,'/Library/Python/2.7/site-packages')
+
 
 import numpy as np
 
@@ -504,7 +506,6 @@ def main_theano_sign_lang_var_len():
 	"""
 	:description: this trains a model on the sign language data as well, but accounts for variable length sequences and processes batches.
 	"""
-
 	print('loading data...')
 	n_input_at_each_timestep = 10
 	n_classes = 97	# no base 0 considered, there are just 98 of them. May need to be 97
@@ -515,7 +516,7 @@ def main_theano_sign_lang_var_len():
 	X = np.swapaxes(X, 0, 1)
 	masks = np.swapaxes(masks, 0, 1)
 
-	split_idx = int(.8 * X.shape[0])
+	split_idx = int(.8 * X.shape[1])
 
 	X = theano.shared(np.asarray(X, dtype=theano.config.floatX), borrow=True)
 	masks = theano.shared(np.asarray(masks, dtype=theano.config.floatX), borrow=True)
@@ -528,11 +529,11 @@ def main_theano_sign_lang_var_len():
 	testset_X, testset_y = X[:, split_idx:, :], y[split_idx:]
 
 	index = T.lscalar()
-	x = T.matrix('x')
-	target = T.lscalar('target')
+	x = T.tensor3('x')
+	target = T.lvector('target')
 	print_x = theano.printing.Print('\nx')(x)
 	print_target = theano.printing.Print('target')(target)
-	mask = T.matrix('mask')
+	mask = T.tensor3('mask')
 
 	print('building model...')
 
@@ -548,10 +549,10 @@ def main_theano_sign_lang_var_len():
 
 	layers = [lstm_1, softmax]
 
-	cost_expr = Softmax.negative_log_likelihood
+	cost_expr = variable_length_sequence_lstm.Softmax.negative_log_likelihood
 	rnn = variable_length_sequence_lstm.MLP(layers, cost=cost_expr, return_indices=[-1])
 
-	cost, updates = rnn.get_cost_updates((x, target), mask, learning_rate=0.01)
+	cost, updates = rnn.get_cost_updates(x, target, mask, learning_rate=0.01)
 
 	batch_size = 50
 
@@ -586,10 +587,12 @@ def main_theano_sign_lang_var_len():
 
 	n_epochs = 100
 	lowest_cost = -1
+	n_train_batches = int(trainset_X.shape.eval()[1] / float(batch_size))
+	n_validation_batches = int(testset_X.shape.eval()[1] / float(batch_size))
 	for epoch in range(n_epochs):
 		costs = []
 		#random_indices = get_random_indices(max_index=n_train_examples - 1, samples_per_epoch=100)
-		for sample_idx in range(n_train_examples):
+		for sample_idx in range(n_train_batches):
 		# for sample_idx in random_indices:
 			costs.append(trainer(sample_idx)[0])
 		avg_cost = np.mean(costs)
@@ -604,7 +607,7 @@ def main_theano_sign_lang_var_len():
 		predictions = []
 		if run_validation:
 			print('\nvalidation')
-			for sample_idx in range(n_test_examples):
+			for sample_idx in range(n_validation_batches):
 				predictions.append(validate_model(sample_idx)[1])
 			accuracy = (1 - np.mean(predictions)) * 100
 		 	print('accuracy for epoch {0}: {1}%'.format(epoch, accuracy))
