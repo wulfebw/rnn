@@ -88,16 +88,16 @@ import numpy as np
 import theano
 import theano.tensor as T
 
-from pylearn2.sandbox.rnn.space import SequenceSpace, SequenceDataSpace
-from pylearn2.space import VectorSpace, CompositeSpace, VectorSequenceSpace
-from pylearn2.costs.mlp import Default
-from pylearn2.sandbox.rnn.models.rnn import Recurrent, RNN
-from pylearn2.models.mlp import Softmax, MLP
-from pylearn2.training_algorithms.sgd import SGD
-from pylearn2.termination_criteria import EpochCounter
-from pylearn2.blocks import StackedBlocks
-from pylearn2.datasets.transformer_dataset import TransformerDataset
-from pylearn2.train import Train
+# from pylearn2.sandbox.rnn.space import SequenceSpace, SequenceDataSpace
+# from pylearn2.space import VectorSpace, CompositeSpace, VectorSequenceSpace
+# from pylearn2.costs.mlp import Default
+# from pylearn2.sandbox.rnn.models.rnn import Recurrent, RNN
+# from pylearn2.models.mlp import Softmax, MLP
+# from pylearn2.training_algorithms.sgd import SGD
+# from pylearn2.termination_criteria import EpochCounter
+# from pylearn2.blocks import StackedBlocks
+# from pylearn2.datasets.transformer_dataset import TransformerDataset
+# from pylearn2.train import Train
 
 from toy_datasets import ToyVideoDataset, easy_data_generator, hard_data_generator_reconstruct, hard_data_generator_random_reconstruct, easy_data_generator_reconstruct, super_easy_data_generator_reconstruct, chest_accel_data_loader, easy_softmax_data_generator, get_sequence_lengths
 from enc_dec_rnn import EncDecRNN, EncDecRecurrent, Softmax, LSTM
@@ -121,71 +121,71 @@ def get_dataset_toy_raw(data_generator=None, n_examples=100, n_classes=10, n_fea
 	trainset, testset = get_dataset_toy(data_generator, n_examples, n_classes, n_features, n_frames)
 	return trainset.get_data_as_shared(), testset.get_data_as_shared()
 
-def get_rnn(structure):
-	recurrent_layer = Recurrent(dim=structure[0][1], layer_name='recurrent', irange=0.02, indices=[-1])
-	softmax_layer = Softmax(n_classes=structure[1][1], layer_name='softmax', irange=0.02)
-	layers = [recurrent_layer, softmax_layer]
-	# return RNN(input_space=SequenceDataSpace(VectorSpace(dim=structure[0][0])), layers=layers)
-	return RNN(input_space=SequenceSpace(VectorSpace(dim=structure[0][0])), layers=layers)
+# def get_rnn(structure):
+# 	recurrent_layer = Recurrent(dim=structure[0][1], layer_name='recurrent', irange=0.02, indices=[-1])
+# 	softmax_layer = Softmax(n_classes=structure[1][1], layer_name='softmax', irange=0.02)
+# 	layers = [recurrent_layer, softmax_layer]
+# 	# return RNN(input_space=SequenceDataSpace(VectorSpace(dim=structure[0][0])), layers=layers)
+# 	return RNN(input_space=SequenceSpace(VectorSpace(dim=structure[0][0])), layers=layers)
 
-def get_trainer(model, trainset):
-	# 1. create the model config
-	config = {'learning_rate': 0.1,
-			'cost' : Default(),
-			'batch_size': 1,
-			'monitoring_batches': 1,
-			'monitoring_dataset': trainset,
-			'termination_criterion': EpochCounter(max_epochs=MAX_EPOCHS_SUPERVISED),
-			'update_callbacks': None
-			}
+# def get_trainer(model, trainset):
+# 	# 1. create the model config
+# 	config = {'learning_rate': 0.1,
+# 			'cost' : Default(),
+# 			'batch_size': 1,
+# 			'monitoring_batches': 1,
+# 			'monitoring_dataset': trainset,
+# 			'termination_criterion': EpochCounter(max_epochs=MAX_EPOCHS_SUPERVISED),
+# 			'update_callbacks': None
+# 			}
 
-	# 2. create the training algo
-	train_algo = SGD(**config)
+# 	# 2. create the training algo
+# 	train_algo = SGD(**config)
 
-	# 3. create and return the Train object
-	return Train(model=model, dataset=trainset, algorithm=train_algo, extensions=None)
+# 	# 3. create and return the Train object
+# 	return Train(model=model, dataset=trainset, algorithm=train_algo, extensions=None)
 
 def get_random_indices(max_index, samples_per_epoch):
 	return np.random.randint(0, max_index, samples_per_epoch)
 
-def main_pylearn():
-	"""
-	:description:
-	:development: Instead of this layers approach, you may be able to use a MLP or RNN class to wrap the layers. This is probably what is being emmulated with this approach.
-	"""
+# def main_pylearn():
+# 	"""
+# 	:description:
+# 	:development: Instead of this layers approach, you may be able to use a MLP or RNN class to wrap the layers. This is probably what is being emmulated with this approach.
+# 	"""
 
-	# create datasets
-	print('loading dataset...')
-	n_input_at_each_timestep = 5
-	n_classes = 6
-	n_frames = 5
-	trainset, testset = get_dataset_toy(n_classes=n_classes, n_features=n_input_at_each_timestep, n_frames=n_frames)
+# 	# create datasets
+# 	print('loading dataset...')
+# 	n_input_at_each_timestep = 5
+# 	n_classes = 6
+# 	n_frames = 5
+# 	trainset, testset = get_dataset_toy(n_classes=n_classes, n_features=n_input_at_each_timestep, n_frames=n_frames)
 
-	print('trainset.X.shape: {}'.format(trainset.X.shape))
-	print('type(trainset.X): {}'.format(type(trainset.X)))
-	iter = trainset.iterator()
-	next = iter.next()
-	print('iter.next(): {}'.format(next))
-	print('iter.next()[0].shape: {}'.format(next[0].shape))
-	print('type(iter.next()): {}'.format(type(next)))
-	print('type(iter.next()[0]): {}'.format(type(next[0])))
+# 	print('trainset.X.shape: {}'.format(trainset.X.shape))
+# 	print('type(trainset.X): {}'.format(type(trainset.X)))
+# 	iter = trainset.iterator()
+# 	next = iter.next()
+# 	print('iter.next(): {}'.format(next))
+# 	print('iter.next()[0].shape: {}'.format(next[0].shape))
+# 	print('type(iter.next()): {}'.format(type(next)))
+# 	print('type(iter.next()[0]): {}'.format(type(next[0])))
 
 
-	# determine network structure
-	n_hidden  = 5
-	structure = [[n_input_at_each_timestep, n_hidden], [n_hidden, n_classes]]
+# 	# determine network structure
+# 	n_hidden  = 5
+# 	structure = [[n_input_at_each_timestep, n_hidden], [n_hidden, n_classes]]
 
-	# create layers of network
-	print('building model...')
-	rnn = get_rnn(structure)
+# 	# create layers of network
+# 	print('building model...')
+# 	rnn = get_rnn(structure)
 
-	# create the supervised trainer for the network
-	print('building trainer...')
-	layer_trainer = get_trainer(rnn, trainset)
+# 	# create the supervised trainer for the network
+# 	print('building trainer...')
+# 	layer_trainer = get_trainer(rnn, trainset)
 
-	# run the main loop of the trainer
-	print('training model...')
-	layer_trainer.main_loop()
+# 	# run the main loop of the trainer
+# 	print('training model...')
+# 	layer_trainer.main_loop()
 
 def main_theano():
 	n_input_at_each_timestep = 8
@@ -501,33 +501,38 @@ def main_theano_sign_lang():
 			print('{}: {}'.format(param.name, param.get_value()))
 
 def main_theano_sign_lang_var_len():
+	"""
+	:description: this trains a model on the sign language data as well, but accounts for variable length sequences and processes batches.
+	"""
 
 	print('loading data...')
 	n_input_at_each_timestep = 10
 	n_classes = 97	# no base 0 considered, there are just 98 of them. May need to be 97
-	dataset_sequence_length = 31
 	
 	X, y = sign_lang.load_data_from_aggregate_file()
-	sequence_lengths = get_sequence_lengths(X)
-	X = sign_lang.pad_data_to_max_sample_length(X)
+	X, masks = sign_lang.pad_data_to_max_sample_length(X)
+	X = X.astype(theano.config.floatX)
+	X = np.swapaxes(X, 0, 1)
+	masks = np.swapaxes(masks, 0, 1)
 
 	split_idx = int(.8 * X.shape[0])
 
-	sequence_lengths_train = theano.shared(sequence_lengths[:split_idx])
-	sequence_lengths_test = theano.shared(sequence_lengths[split_idx:])
-
 	X = theano.shared(np.asarray(X, dtype=theano.config.floatX), borrow=True)
+	masks = theano.shared(np.asarray(masks, dtype=theano.config.floatX), borrow=True)
 	y = theano.shared(y, borrow=True)
+
+	trainset_masks = masks[:, :split_idx, :]
+	testset_masks = masks[:, split_idx:, :]
 	
-	trainset_X, trainset_y = X[:split_idx], y[:split_idx]
-	testset_X, testset_y = X[split_idx:], y[split_idx:]
+	trainset_X, trainset_y = X[:, :split_idx, :], y[:split_idx]
+	testset_X, testset_y = X[:, split_idx:, :], y[split_idx:]
 
 	index = T.lscalar()
 	x = T.matrix('x')
 	target = T.lscalar('target')
 	print_x = theano.printing.Print('\nx')(x)
 	print_target = theano.printing.Print('target')(target)
-	sequence_length = T.lscalar('sequence_lengths')
+	mask = T.matrix('mask')
 
 	print('building model...')
 
@@ -539,14 +544,16 @@ def main_theano_sign_lang_var_len():
 
 
 	lstm_1 = variable_length_sequence_lstm.LSTM(n_vis=n_input_at_each_timestep, n_hid=n_input_at_each_timestep, layer_name='rec_1', return_indices=[-1], dropout_prob=0.3)
-	softmax = Softmax(n_vis=n_input_at_each_timestep, n_classes=n_classes)
+	softmax = variable_length_sequence_lstm.Softmax(n_vis=n_input_at_each_timestep, n_classes=n_classes)
 
 	layers = [lstm_1, softmax]
 
 	cost_expr = Softmax.negative_log_likelihood
 	rnn = variable_length_sequence_lstm.MLP(layers, cost=cost_expr, return_indices=[-1])
 
-	cost, updates = rnn.get_cost_updates((x, target), sequence_length, learning_rate=0.01)
+	cost, updates = rnn.get_cost_updates((x, target), mask, learning_rate=0.01)
+
+	batch_size = 50
 
 	print('building trainer...')
 	trainer = theano.function(
@@ -554,9 +561,9 @@ def main_theano_sign_lang_var_len():
 		[cost],
 		updates=updates,
 		givens={
-			x: trainset_X[index],
-			target: trainset_y[index],
-			sequence_length: sequence_lengths_train[index]
+			x: trainset_X[:, index * batch_size: (index + 1) * batch_size],
+			target: trainset_y[index * batch_size: (index + 1) * batch_size],
+			mask: trainset_masks[:, index * batch_size: (index + 1) * batch_size]
 		},
 		mode='FAST_RUN'
 	)
@@ -566,16 +573,16 @@ def main_theano_sign_lang_var_len():
 		inputs=[index],
 		outputs=[cost, errors],
 		givens={
-			x: testset_X[index],
-			target: testset_y[index],
-			sequence_length: sequence_lengths_test[index]
+			x: testset_X[:, index * batch_size: (index + 1) * batch_size],
+			target: testset_y[index * batch_size: (index + 1) * batch_size],
+			mask: testset_masks[:, index * batch_size: (index + 1) * batch_size]
 		},
 		mode='FAST_RUN'
 	)
 
 	print('training model...')
-	n_train_examples = trainset_X.shape.eval()[0]
-	n_test_examples = testset_X.shape.eval()[0]
+	n_train_examples = trainset_X.shape.eval()[1]
+	n_test_examples = testset_X.shape.eval()[1]
 
 	n_epochs = 100
 	lowest_cost = -1

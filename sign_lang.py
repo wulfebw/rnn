@@ -41,12 +41,15 @@ def pad_data_to_max_sample_length(X, pad_value=0.):
 
 	max_sample_len = max(map(len, X))
 	new_X = []
+	masks = []
 	for sample in X:
+		mask = np.ones_like(sample)
 		pad_len = max_sample_len - len(sample)
 		pad_arr = np.tile(pad_unit, (pad_len, 1))
 		new_X.append(np.vstack((sample, pad_arr)))
+		masks.append(np.vstack((mask, pad_arr)))
 
-	return np.array(new_X)
+	return np.array(new_X), np.array(masks)
 
 def load_data_from_aggregate_file(input_filepath='/Users/wulfe/Dropbox/Start/scripts/machine_learning/stacked_enc_dec_rnn/data/sign_lang.npz'):
 	arrays = np.load(input_filepath)
@@ -122,7 +125,7 @@ def load_data_from_dir(data_dir='/Users/wulfe/Downloads/signs'):
 	for f in filepaths:
 		print('loading file: {}'.format(f))
 		sample, target = load_data_from_file(f, linguistic_to_numeric_dict)
-		if len(sample) > 30 and len(sample) < 90:
+		if len(sample) > 30 and len(sample) < 80:
 			X.append(sample)
 			y.append(target)
 	print('actual number of samples: {}'.format(len(X)))

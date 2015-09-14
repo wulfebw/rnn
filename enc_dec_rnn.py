@@ -525,7 +525,7 @@ class Softmax(object):
 
 		self.params = [self.W, self.b]
 
-	def fprop(self, state_below):
+	def fprop(self, state_below, mask=None):
 		# prob_y_given_x is a 2d array with only one element e.g., [[1,2,3]], so take only the first ele
 		prob_y_given_x = T.nnet.softmax(T.dot(state_below, self.W) + self.b)[0]
 		print_prob_y_given_x = theano.printing.Print('prob_y_given_x')(prob_y_given_x)
