@@ -1,0 +1,169 @@
+Sum{acc_dtype=float64} [@A] ''   
+ |Elemwise{sqr,no_inplace} [@B] ''   
+   |Elemwise{sub,no_inplace} [@C] ''   
+     |x [@D]
+     |Subtensor{int32::} [@E] ''   
+       |Reshape{2} [@F] ''   
+       | |Subtensor{int64::} [@G] ''   
+       | | |for{cpu,scan_fn}.1 [@H] ''   
+       | | | |TensorConstant{8} [@I]
+       | | | |IncSubtensor{Set;:int64:} [@J] ''   
+       | | | | |Alloc [@K] ''   
+       | | | | | |TensorConstant{0.0} [@L]
+       | | | | | |Elemwise{add,no_inplace} [@M] ''   
+       | | | | | | |TensorConstant{8} [@I]
+       | | | | | | |Subtensor{int64} [@N] ''   
+       | | | | | |   |Shape [@O] ''   
+       | | | | | |   | |Rebroadcast{0} [@P] ''   
+       | | | | | |   |   |DimShuffle{x,0,1} [@Q] ''   
+       | | | | | |   |     |Subtensor{int64} [@R] ''   
+       | | | | | |   |       |Subtensor{int64::} [@S] ''   
+       | | | | | |   |       | |for{cpu,scan_fn} [@T] ''                     # scan
+       | | | | | |   |       | | |Subtensor{int64} [@U] ''                   # subtensor with shape, all 0s
+       | | | | | |   |       | | | |Shape [@V] ''                                   # shape of the below
+       | | | | | |   |       | | | | |Subtensor{int64::} [@W] ''                    # create subT of 0s w/ shape
+       | | | | | |   |       | | | |   |Reshape{3} [@X] ''                          # reshape state_below
+       | | | | | |   |       | | | |   | |Elemwise{add,no_inplace} [@Y] ''          # add(dot, reshaped_bxh)
+       | | | | | |   |       | | | |   | | |dot [@Z] ''                             # dot(concat_x, Wxh)
+       | | | | | |   |       | | | |   | | | |Join [@BA] ''                                # concat x w/ 0 tensor
+       | | | | | |   |       | | | |   | | | | |TensorConstant{0} [@BB]
+       | | | | | |   |       | | | |   | | | | |Alloc [@BC] ''                             # create tensor
+       | | | | | |   |       | | | |   | | | | | |TensorConstant{0.0} [@L]                 # tensor of zeros
+       | | | | | |   |       | | | |   | | | | | |Elemwise{Cast{int32}} [@BD] ''           # int cast
+       | | | | | |   |       | | | |   | | | | | | |Elemwise{sub,no_inplace} [@BE] ''      # calc shape
+       | | | | | |   |       | | | |   | | | | | |   |Elemwise{mul,no_inplace} [@BF] ''    # calc shape
+       | | | | | |   |       | | | |   | | | | | |   | |Elemwise{Cast{int32}} [@BG] ''     # int cast
+       | | | | | |   |       | | | |   | | | | | |   | | |Elemwise{ceil,no_inplace} [@BH] ''      # calc shape
+       | | | | | |   |       | | | |   | | | | | |   | |   |Elemwise{true_div,no_inplace} [@BI] ''# calc shape   
+       | | | | | |   |       | | | |   | | | | | |   | |     |Elemwise{Cast{float64}} [@BJ] ''    # cast float   
+       | | | | | |   |       | | | |   | | | | | |   | |     | |Subtensor{int64} [@BK] ''  # 0 concat tensor
+       | | | | | |   |       | | | |   | | | | | |   | |     |   |Shape [@BL] ''           # original input shape
+       | | | | | |   |       | | | |   | | | | | |   | |     |   | |x [@D]                 
+       | | | | | |   |       | | | |   | | | | | |   | |     |   |Constant{0} [@BM]        
+       | | | | | |   |       | | | |   | | | | | |   | |     |TensorConstant{8} [@I]       
+       | | | | | |   |       | | | |   | | | | | |   | |TensorConstant{8} [@I]
+       | | | | | |   |       | | | |   | | | | | |   |Elemwise{Cast{float64}} [@BJ] ''   
+       | | | | | |   |       | | | |   | | | | | |TensorConstant{10} [@BN]                 # end 0 concat tensor
+       | | | | | |   |       | | | |   | | | | |x [@D]
+       | | | | | |   |       | | | |   | | | |enc_1_Wxh [@BO]
+       | | | | | |   |       | | | |   | | |DimShuffle{x,0} [@BP] ''   
+       | | | | | |   |       | | | |   | |   |enc_1_bxh [@BQ]
+       | | | | | |   |       | | | |   | |MakeVector [@BR] ''                              # as (8,n_encodings,10)
+       | | | | | |   |       | | | |   |   |Elemwise{Cast{int32}} [@BS] ''   
+       | | | | | |   |       | | | |   |   | |TensorConstant{8} [@I]
+       | | | | | |   |       | | | |   |   |Elemwise{Cast{int32}} [@BG] ''   
+       | | | | | |   |       | | | |   |   |Elemwise{Cast{int32}} [@BT] ''   
+       | | | | | |   |       | | | |   |     |TensorConstant{10} [@BN]
+       | | | | | |   |       | | | |   |Constant{0} [@BU]                     # what's this?
+       | | | | | |   |       | | | |Constant{0} [@BV]
+       | | | | | |   |       | | |Subtensor{:int64:} [@BW] ''                 # subtensor from 'W' or state_below
+       | | | | | |   |       | | | |Subtensor{int64::} [@W] ''   
+       | | | | | |   |       | | | |ScalarFromTensor [@BX] ''                 # _not_sure_!!!
+       | | | | | |   |       | | |   |Subtensor{int64} [@U] ''   
+       | | | | | |   |       | | |IncSubtensor{Set;:int64:} [@BY] ''   
+       | | | | | |   |       | | | |Alloc [@BZ] ''   
+       | | | | | |   |       | | | | |TensorConstant{0.0} [@L]
+       | | | | | |   |       | | | | |Elemwise{add,no_inplace} [@CA] ''   
+       | | | | | |   |       | | | | | |Subtensor{int64} [@U] ''   
+       | | | | | |   |       | | | | | |Subtensor{int64} [@CB] ''   
+       | | | | | |   |       | | | | |   |Shape [@CC] ''   
+       | | | | | |   |       | | | | |   | |Rebroadcast{0} [@CD] ''   
+       | | | | | |   |       | | | | |   |   |DimShuffle{x,0,1} [@CE] ''   
+       | | | | | |   |       | | | | |   |     |Alloc [@CF] ''   
+       | | | | | |   |       | | | | |   |       |TensorConstant{0.0} [@L]
+       | | | | | |   |       | | | | |   |       |Elemwise{Cast{int32}} [@BG] ''   
+       | | | | | |   |       | | | | |   |       |TensorConstant{10} [@BN]
+       | | | | | |   |       | | | | |   |Constant{0} [@CG]
+       | | | | | |   |       | | | | |Subtensor{int64} [@CH] ''   
+       | | | | | |   |       | | | | | |Shape [@CI] ''   
+       | | | | | |   |       | | | | | | |Rebroadcast{0} [@CD] ''   
+       | | | | | |   |       | | | | | |Constant{1} [@CJ]
+       | | | | | |   |       | | | | |Subtensor{int64} [@CK] ''   
+       | | | | | |   |       | | | |   |Shape [@CL] ''   
+       | | | | | |   |       | | | |   | |Rebroadcast{0} [@CD] ''   
+       | | | | | |   |       | | | |   |Constant{2} [@CM]
+       | | | | | |   |       | | | |Rebroadcast{0} [@CD] ''   
+       | | | | | |   |       | | | |ScalarFromTensor [@CN] ''   
+       | | | | | |   |       | | |   |Subtensor{int64} [@CB] ''   
+       | | | | | |   |       | | |enc_1_Whhe [@CO]
+       | | | | | |   |       | |Constant{1} [@CP]
+       | | | | | |   |       |Constant{-1} [@CQ]
+       | | | | | |   |Constant{0} [@CR]
+       | | | | | |Subtensor{int64} [@CS] ''   
+       | | | | | | |Shape [@CT] ''   
+       | | | | | | | |Rebroadcast{0} [@P] ''   
+       | | | | | | |Constant{1} [@CU]
+       | | | | | |Subtensor{int64} [@CV] ''   
+       | | | | |   |Shape [@CW] ''   
+       | | | | |   | |Rebroadcast{0} [@P] ''   
+       | | | | |   |Constant{2} [@CX]
+       | | | | |Rebroadcast{0} [@P] ''   
+       | | | | |ScalarFromTensor [@CY] ''   
+       | | | |   |Subtensor{int64} [@N] ''   
+       | | | |IncSubtensor{Set;:int64:} [@CZ] ''   
+       | | | | |Alloc [@DA] ''   
+       | | | | | |TensorConstant{0.0} [@L]
+       | | | | | |Elemwise{add,no_inplace} [@DB] ''   
+       | | | | | | |TensorConstant{8} [@I]
+       | | | | | | |Subtensor{int64} [@DC] ''   
+       | | | | | |   |Shape [@DD] ''   
+       | | | | | |   | |Rebroadcast{0} [@DE] ''   
+       | | | | | |   |   |DimShuffle{x,0,1} [@DF] ''   
+       | | | | | |   |     |Alloc [@DG] ''   
+       | | | | | |   |       |TensorConstant{0.0} [@L]
+       | | | | | |   |       |Elemwise{Cast{int32}} [@BG] ''   
+       | | | | | |   |       |TensorConstant{10} [@BN]
+       | | | | | |   |Constant{0} [@DH]
+       | | | | | |Subtensor{int64} [@DI] ''   
+       | | | | | | |Shape [@DJ] ''   
+       | | | | | | | |Rebroadcast{0} [@DE] ''   
+       | | | | | | |Constant{1} [@DK]
+       | | | | | |Subtensor{int64} [@DL] ''   
+       | | | | |   |Shape [@DM] ''   
+       | | | | |   | |Rebroadcast{0} [@DE] ''   
+       | | | | |   |Constant{2} [@DN]
+       | | | | |Rebroadcast{0} [@DE] ''   
+       | | | | |ScalarFromTensor [@DO] ''   
+       | | | |   |Subtensor{int64} [@DC] ''   
+       | | | |enc_1_Wxh [@BO]
+       | | | |enc_1_bhx [@DP]
+       | | | |DimShuffle{1,0} [@DQ] 'enc_1_Whhe.T'   
+       | | | | |enc_1_Whhe [@CO]
+       | | | |DimShuffle{1,0} [@DR] 'enc_1_Wxh.T'   
+       | | |   |enc_1_Wxh [@BO]
+       | | |Constant{1} [@DS]
+       | |MakeVector [@DT] ''   
+       |   |Elemwise{mul,no_inplace} [@DU] ''   
+       |   | |TensorConstant{8} [@I]
+       |   | |Elemwise{Cast{int32}} [@BG] ''   
+       |   |Elemwise{Cast{int32}} [@DV] ''   
+       |     |TensorConstant{10} [@BN]
+       |ScalarFromTensor [@DW] ''   
+         |Elemwise{Cast{int32}} [@BD] ''   
+
+Inner graphs of the scan ops:
+
+for{cpu,scan_fn}.1 [@H] ''   
+ >Elemwise{tanh,no_inplace} [@DX] ''   
+ > |Elemwise{add,no_inplace} [@DY] ''   
+ >   |dot [@DZ] ''   
+ >   | |<TensorType(float64, matrix)> [@EA]
+ >   | |enc_1_Whhe.T_copy [@EB]
+ >   |dot [@EC] ''   
+ >     |<TensorType(float64, matrix)> [@ED]
+ >     |enc_1_Wxh_copy [@EE]
+ >Elemwise{tanh,no_inplace} [@EF] ''   
+ > |Elemwise{add,no_inplace} [@EG] ''   
+ >   |dot [@EH] ''   
+ >   | |Elemwise{tanh,no_inplace} [@DX] ''   
+ >   | |enc_1_Wxh.T_copy [@EI]
+ >   |DimShuffle{x,0} [@EJ] ''   
+ >     |enc_1_bhx_copy [@EK]
+
+for{cpu,scan_fn} [@T] ''   
+ >Elemwise{tanh,no_inplace} [@EL] ''   
+ > |Elemwise{add,no_inplace} [@EM] ''   
+ >   |dot [@EN] ''   
+ >   | |<TensorType(float64, matrix)> [@EO]
+ >   | |enc_1_Whhe_copy [@EP]
+ >   |<TensorType(float64, matrix)> [@EO]
