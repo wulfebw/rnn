@@ -42,7 +42,7 @@ class MLP(object):
 		else:
 			return outputs
 
-	def get_cost_updates(self, input, targets, mask, learning_rate=0.01):
+	def get_cost_updates(self, input, targets, mask, learning_rate=0.001, momentum=0.2):
 		predictions = self.fprop(input, mask)
 
 		if self.cost is not None:
@@ -50,13 +50,18 @@ class MLP(object):
 		else:
 			cost = T.mean(T.sqr(targets - predictions))
 
-		params = self.get_fprop_params()
-		gparams = T.grad(cost, params)
-		updates = [(param, param - learning_rate * gparam) for param, gparam in zip(params, gparams)]
+		params = self.get_params()
+
+		try:
+			self.gparams = momentum * self.gparams + (1 - momentum) * T.grad(cost, params)
+		except:
+			self.gparams = T.grad(cost, params)
+
+		updates = [(param, param - learning_rate * gparam) for param, gparam in zip(params, self.gparams)]
 
 		return (cost, updates)
 
-	def get_fprop_params(self):
+	def get_params(self):
 		params = []
 		for layer in self.layers:
 			params += layer.params
@@ -219,7 +224,6 @@ class Softmax(object):
 		self.params = [self.W, self.b]
 
 	def fprop(self, state_below, mask=None):
-
 		prob_y_given_x = T.nnet.softmax(T.dot(state_below, self.W) + self.b)
 		print_prob_y_given_x = theano.printing.Print('prob_y_given_x')(prob_y_given_x)
 		# T.argmax returns the index of the greatest element in the vector prob_y_given_x 
